@@ -9,6 +9,17 @@
 
 model.fit.stats <- function(x) {
   
+  # check whether weights is installed
+  is.installed <- function(mypkg){
+    is.element(mypkg, installed.packages()[,1])
+  } 
+  
+  if (!is.installed("weights")){
+    install.packages("weights")
+  }
+  
+  require(weights)
+  
   options("scipen"=100, "digits"=8) # prevent exponential notation
   
   # extract relevant statistics
@@ -19,14 +30,23 @@ model.fit.stats <- function(x) {
   
   # determine whether p smaller than .001
   if (table$pvalue.scaled < 0.001) {
-    sign = "<"
+    sign = "< "
   } else {
-    sign = "="
+    sign = "= "
+  }
+  
+  # determine whether p is 1
+  if (table$pvalue.scaled > 0.9994) {
+    sign = "> "
   }
   
   # format values
   table$chisq.scaled = sprintf("%.2f", round(table$chisq.scaled, 2)) # round 2 to digits
   table$pvalue.scaled = rd(table$pvalue.scaled, digits = 3) # round 3 to digits, remove leading 0
+  if (table$pvalue.scaled == "1.000") {
+    table$pvalue.scaled <- ".999"
+  }
+  
   table$pvalue.scaled[grepl(".000", table$pvalue.scaled, ignore.case=F)] <- ".001" # if smaller than .001 write "< .001"
   table$rmsea.ci.lower.scaled = rd(table$rmsea.ci.lower.scaled, digits = 3) # round 3 to digits, remove leading 0
   table$rmsea.ci.upper.scaled = rd(table$rmsea.ci.upper.scaled, digits = 3) # round 3 to digits, remove leading 0
@@ -35,11 +55,11 @@ model.fit.stats <- function(x) {
   table$srmr = rd(table$srmr, digits = 3) # round 3 to digits, remove leading 0
   
   # coerce into character
-  out = paste(c("X2(", table$df.scaled, ")=", table$chisq.scaled,
-                ",p", sign, table$pvalue.scaled, "; RMSEA=",
-                table$rmsea.scaled, "[", table$rmsea.ci.lower.scaled, " ",
-                table$rmsea.ci.upper.scaled, "]; CFI=", table$cfi.scaled,
-                " ;SRMR = ", table$srmr),
+  out = paste(c("X2(", table$df.scaled, ") = ", table$chisq.scaled,
+                ", p ", sign, table$pvalue.scaled, "; RMSEA = ",
+                table$rmsea.scaled, " [", table$rmsea.ci.lower.scaled, " ",
+                table$rmsea.ci.upper.scaled, "]; CFI = ", table$cfi.scaled,
+                "; SRMR = ", table$srmr),
               collapse = "")
   
   return(out)

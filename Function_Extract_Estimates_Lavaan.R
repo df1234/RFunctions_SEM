@@ -14,6 +14,17 @@
 
 table.estimates <- function(x, component, name) {
   
+  # check whether weights is installed
+  is.installed <- function(mypkg){
+    is.element(mypkg, installed.packages()[,1])
+  } 
+  
+  if (!is.installed("weights")){
+    install.packages("weights")
+  }
+  
+  require(weights)
+  
   options("scipen"=100, "digits"=8) # prevent exponential notation
   
   # extract estimates
@@ -28,6 +39,7 @@ table.estimates <- function(x, component, name) {
   est$z = sprintf("%.2f", round(est$z, 2)) # round 2 to digits
   est$std.all = sprintf("%.2f", round(est$std.all, 2))
   est$pvalue = rd(est$pvalue, digits = 3) # round 3 to digits, remove leading 0
+  est$pvalue[grepl("1.000", est$pvalue, ignore.case=F)] <- "> .999" # if smaller than .001 write "< .001"
   est$pvalue[grepl(".000", est$pvalue, ignore.case=F)] <- "< .001" # if smaller than .001 write "< .001"
   
   # remove unneccessary columns
@@ -44,4 +56,5 @@ table.estimates <- function(x, component, name) {
   write.table(est, file = file.name, sep = ",", quote = F, row.names = F)
   
   return("Table of estimates written in current directory")
+  
 }
