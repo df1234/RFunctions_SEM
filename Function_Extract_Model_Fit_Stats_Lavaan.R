@@ -1,4 +1,4 @@
-################################################################################
+- ################################################################################
 ################### FUNCTION FOR EXTRACTING KEY MODEL FIT  #####################
 #################### STATISTICS FROM FITTED LAVAAN OBJECT ######################
 ################################################################################
@@ -57,7 +57,7 @@ model.fit.stats <- function(x) {
   # coerce into character
   out = paste(c("X2(", table$df.scaled, ") = ", table$chisq.scaled,
                 ", p ", sign, table$pvalue.scaled, "; RMSEA = ",
-                table$rmsea.scaled, " [", table$rmsea.ci.lower.scaled, " ",
+                table$rmsea.scaled, " [", table$rmsea.ci.lower.scaled, " - ",
                 table$rmsea.ci.upper.scaled, "]; CFI = ", table$cfi.scaled,
                 "; SRMR = ", table$srmr),
               collapse = "")
